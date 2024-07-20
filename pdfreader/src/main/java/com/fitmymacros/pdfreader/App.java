@@ -248,7 +248,7 @@ public class App implements RequestHandler<Map<String, Object>, Object> {
     }
 
     /**
-     * This method generates the prompt that will be sent to the openai api
+     * This method generates the prompt that will be sent to the openai api.
      * 
      * @return
      */
