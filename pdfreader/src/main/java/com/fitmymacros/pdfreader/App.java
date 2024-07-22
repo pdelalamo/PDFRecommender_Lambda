@@ -32,7 +32,7 @@ public class App implements RequestHandler<Map<String, Object>, Object> {
     private static String OPENAI_API_KEY_NAME = "OpenAI-API_Key_Encrypted";
     private static String OPENAI_MODEL_NAME = "OpenAI-Model-PDF";
     private static String OPENAI_MODEL_TEMPERATURE = "OpenAI-Model-Temperature";
-    private static String OPENAI_MAX_TOKENS = "OpenAI-Max-Tokens";
+    private static String OPENAI_MAX_TOKENS = "OpenAI-Max-Tokens-pdf";
     private SsmClient ssmClient;
     private String OPENAI_AI_KEY;
     private String OPENAI_MODEL;
@@ -41,6 +41,16 @@ public class App implements RequestHandler<Map<String, Object>, Object> {
     private String URL = "https://api.openai.com/v1/chat/completions";
     private ObjectMapper objectMapper;
     private WebClient webClient;
+
+    public App() {
+        this.ssmClient = SsmClient.builder().region(Region.EU_WEST_3).build();
+        this.OPENAI_AI_KEY = this.getOpenAIKeyFromParameterStore();
+        this.OPENAI_MODEL = this.getOpenAIModelFromParameterStore();
+        this.MODEL_TEMPERATURE = this.getTemperatureFromParameterStore();
+        this.MODEL_MAX_TOKENS = this.getMaxTokensFromParameterStore();
+        this.objectMapper = new ObjectMapper();
+        this.webClient = WebClient.create();
+    }
 
     @Override
     public Object handleRequest(Map<String, Object> input, Context context) {
