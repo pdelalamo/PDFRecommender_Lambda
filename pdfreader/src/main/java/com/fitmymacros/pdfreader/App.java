@@ -27,10 +27,6 @@ import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 import software.amazon.awssdk.services.ssm.model.SsmException;
 
-/**
- * Hello world!
- *
- */
 public class App implements RequestHandler<Map<String, Object>, Object> {
 
     private static String OPENAI_API_KEY_NAME = "OpenAI-API_Key_Encrypted";
@@ -49,9 +45,9 @@ public class App implements RequestHandler<Map<String, Object>, Object> {
     @Override
     public Object handleRequest(Map<String, Object> input, Context context) {
         try {
-            Map<String, String> queryParams = this.extractQueryString(input);
+            Map<String, Object> body = this.convertBodyToMap(input.get("body").toString());
             System.out.println("input: " + input);
-            String prompt = generatePrompt(queryParams);
+            String prompt = generatePrompt(body);
             System.out.println("prompt: " + prompt);
 
             Map<String, Object> requestBody = new HashMap<>();
@@ -95,63 +91,19 @@ public class App implements RequestHandler<Map<String, Object>, Object> {
     }
 
     /**
-     * This method extracts the query params from the received event
+     * This method converts the body received as a String into a map
      * 
-     * @param input
+     * @param body
      * @return
      */
-    private Map<String, String> extractQueryString(Map<String, Object> input) {
-        Map<String, Object> queryStringMap = (Map<String, Object>) input.get("queryStringParameters");
-        if (queryStringMap != null) {
-            String queryString = (String) queryStringMap.get("querystring");
-            if (queryString != null) {
-                return parseQueryString(queryString);
-            } else {
-                System.out.println("No query string parameters found.");
-            }
-        } else {
-            System.out.println("No queryStringParameters found.");
+    private Map<String, Object> convertBodyToMap(String body) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(body, Map.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
         }
-        return null;
-    }
-
-    /**
-     * This method converts a String into a Map
-     * 
-     * @param queryString
-     * @return
-     */
-    private Map<String, String> parseQueryString(String queryString) {
-        Map<String, String> queryMap = new HashMap<>();
-
-        // Remove leading and trailing braces if present
-        if (queryString.startsWith("{") && queryString.endsWith("}")) {
-            queryString = queryString.substring(1, queryString.length() - 1);
-        }
-
-        // Split the string by comma and space
-        String[] pairs = queryString.split(", ");
-
-        for (String pair : pairs) {
-            String[] keyValue = pair.split("=");
-            if (keyValue.length == 2) {
-                String key = keyValue[0];
-                String value = keyValue[1];
-
-                // Handle boolean values
-                if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
-                    queryMap.put(key, value);
-                } else {
-                    // For non-boolean values, put the key-value pair in the map
-                    queryMap.put(key, value);
-                }
-            } else if (keyValue.length == 1) {
-                // If there's no '=', treat the whole string as a key with a value of "true"
-                queryMap.put(keyValue[0], "true");
-            }
-        }
-
-        return queryMap;
     }
 
     /**
@@ -252,7 +204,7 @@ public class App implements RequestHandler<Map<String, Object>, Object> {
      * 
      * @return
      */
-    private String generatePrompt(Map<String, String> input) {
+    private String generatePrompt(Map<String, Object> input) {
         try {
             String pdfBase64 = input.get("pdf").toString();
             String pdf = this.decodePdf(pdfBase64);
