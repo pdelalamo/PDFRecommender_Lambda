@@ -315,9 +315,11 @@ public class App implements RequestHandler<Map<String, Object>, Object> {
     }
 
     private Map<String, Object> buildSuccessResponse(String response) {
+        System.out.println("returning this response: " + response);
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("statusCode", 200);
         responseBody.put("body", response);
+        responseBody.put("isBase64Encoded", false);
         return responseBody;
     }
 
