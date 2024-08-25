@@ -3,6 +3,18 @@ This AWS Lambda function processes restaurant menu PDFs and generates a list of 
 Usage
 The Lambda function is triggered by API Gateway or another AWS service. It expects a JSON payload with a Base64-encoded PDF and nutritional goals.
 
+Deployment
+Create an AWS Lambda Function:
+
+Go to the AWS Management Console and create a new Lambda function.
+Upload the JAR file created in the target/ directory.
+Set up IAM Role:
+
+Ensure the Lambda function has an IAM role with the following permissions:
+
+ssm:GetParameter
+ssm:GetParameters
+
 Request Example
 
 {
